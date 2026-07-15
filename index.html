@@ -1,1 +1,150 @@
-ea
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sariflaha Dhegocaleen Money Exchange</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark">SD</div>
+          <div>
+            <p class="eyebrow">Sariflaha Dhegocaleen</p>
+            <h1>Money Exchange Desk</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="pill">Live rate: <strong id="header-rate">0.985</strong></div>
+          <button class="ghost-btn" id="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <main class="dashboard-grid">
+        <aside class="sidebar">
+          <section class="panel hero-panel">
+            <p class="eyebrow">Secure operations</p>
+            <h2>Trusted workflow for Zaad and eDahab</h2>
+            <p>Track exchange requests, trigger API actions, and steer the market rate with confidence.</p>
+            <div class="metric-row">
+              <div>
+                <strong id="metric-queue">0</strong>
+                <span>Queued</span>
+              </div>
+              <div>
+                <strong id="metric-completed">0</strong>
+                <span>Completed</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Admin controls</h3>
+              <button class="mini-btn" id="rate-open">Edit rate</button>
+            </div>
+            <div class="control-stack">
+              <button class="primary-btn" id="limits-open">Set transaction limits</button>
+              <div class="info-card">
+                <span class="label">Current rate</span>
+                <strong id="sidebar-rate">1 USD = 0.985 SLSH</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Daily overview</h3>
+            </div>
+            <div class="stats-grid" id="stats-grid"></div>
+          </section>
+        </aside>
+
+        <section class="content-area">
+          <section class="panel board-panel">
+            <div class="panel-header board-header">
+              <div>
+                <p class="eyebrow">Board view</p>
+                <h2>Sariflaha board</h2>
+              </div>
+              <div class="pill">Role: <strong id="role-badge">Agent</strong></div>
+            </div>
+
+            <form id="new-card-form" class="new-card-form">
+              <input type="text" id="customer-number" placeholder="Customer number" required />
+              <input type="number" id="card-amount" placeholder="Amount" step="0.01" required />
+              <select id="card-currency">
+                <option value="USD">USD</option>
+                <option value="SLSH">SLSH</option>
+              </select>
+              <select id="card-target">
+                <option value="Zaad">Zaad</option>
+                <option value="eDahab">eDahab</option>
+              </select>
+              <button class="primary-btn" type="submit">Add request</button>
+            </form>
+
+            <div class="board" id="board"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Recent activity</h3>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop hidden" id="rate-modal">
+      <div class="modal-card">
+        <div class="panel-header">
+          <h3>Update exchange rate</h3>
+          <button class="ghost-btn" id="rate-close">Close</button>
+        </div>
+        <label class="field-label" for="new-rate">Set the new market rate</label>
+        <input type="number" id="new-rate" step="0.001" />
+        <div class="modal-actions">
+          <button class="ghost-btn" id="rate-save">Save rate</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="limits-modal">
+      <div class="modal-card">
+        <div class="panel-header">
+          <h3>Transaction limits</h3>
+          <button class="ghost-btn" id="limits-close">Close</button>
+        </div>
+        <label class="field-label" for="max-txn">Max per transaction</label>
+        <input type="number" id="max-txn" step="1" />
+        <label class="field-label" for="max-day">Max per day</label>
+        <input type="number" id="max-day" step="1" />
+        <div class="modal-actions">
+          <button class="ghost-btn" id="limits-save">Save limits</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-overlay" id="login-overlay">
+      <div class="login-card">
+        <p class="eyebrow">Welcome back</p>
+        <h2>Secure access for Sariflaha</h2>
+        <p>Choose a role to continue into the exchange board.</p>
+        <div class="login-actions">
+          <button class="primary-btn wide" id="login-admin">Enter as Admin</button>
+          <button class="ghost-btn wide" id="login-agent">Enter as Agent</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

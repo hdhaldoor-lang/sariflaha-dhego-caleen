@@ -1,54 +1,18 @@
-const state = {
+﻿const state = {
   authenticated: false,
   role: 'agent',
-  userName: 'Agent A',
   exchangeRate: 0.985,
   limits: { maxPerTxn: 1000, maxPerDay: 5000 },
   cards: [
-    {
-      id: 1,
-      customerNumber: '25261',
-      amount: 100,
-      currency: 'USD',
-      target: 'Zaad',
-      exchangeValue: 98.5,
-      status: 'todo',
-      apiStatus: 'queued',
-      error: ''
-    },
-    {
-      id: 2,
-      customerNumber: '25288',
-      amount: 250,
-      currency: 'USD',
-      target: 'eDahab',
-      exchangeValue: 246.25,
-      status: 'doing',
-      apiStatus: 'pending',
-      error: ''
-    },
-    {
-      id: 3,
-      customerNumber: '25294',
-      amount: 80,
-      currency: 'USD',
-      target: 'Zaad',
-      exchangeValue: 78.8,
-      status: 'done',
-      apiStatus: 'success',
-      error: ''
-    }
+    { id: 1, customerNumber: '25261', amount: 100, currency: 'USD', target: 'Zaad', exchangeValue: 98.5, status: 'todo', apiStatus: 'queued', error: '' },
+    { id: 2, customerNumber: '25288', amount: 250, currency: 'USD', target: 'eDahab', exchangeValue: 246.25, status: 'doing', apiStatus: 'pending', error: '' },
+    { id: 3, customerNumber: '25294', amount: 80, currency: 'USD', target: 'Zaad', exchangeValue: 78.8, status: 'done', apiStatus: 'success', error: '' }
   ],
   timeline: [
     { text: 'Rate updated to 0.985 by admin', time: 'Just now' },
     { text: 'API sync completed with Zaad', time: '3 min ago' }
   ],
-  metrics: {
-    queued: 1,
-    completed: 12,
-    volume: 1250,
-    failed: 3
-  }
+  metrics: { queued: 1, completed: 12, volume: 1250, failed: 3 }
 };
 
 const elements = {
@@ -90,23 +54,20 @@ function bindEvents() {
 function login(role) {
   state.authenticated = true;
   state.role = role;
-  state.userName = role === 'admin' ? 'Admin A' : 'Agent A';
   elements.loginOverlay.classList.add('hidden');
   elements.roleBadge.textContent = role === 'admin' ? 'Admin' : 'Agent';
-  showToast(`Welcome ${state.userName}`);
+  showToast(`Welcome ${role === 'admin' ? 'Admin' : 'Agent'}`);
   render();
 }
 
 function logout() {
   state.authenticated = false;
-  state.role = 'agent';
   elements.loginOverlay.classList.remove('hidden');
   render();
 }
 
 function handleCreateCard(event) {
   event.preventDefault();
-
   const customerNumber = document.getElementById('customer-number').value.trim();
   const amount = Number(document.getElementById('card-amount').value);
   const currency = document.getElementById('card-currency').value;
@@ -117,7 +78,7 @@ function handleCreateCard(event) {
     return;
   }
 
-  const newCard = {
+  state.cards.unshift({
     id: Date.now(),
     customerNumber,
     amount,
@@ -127,9 +88,7 @@ function handleCreateCard(event) {
     status: 'todo',
     apiStatus: 'queued',
     error: ''
-  };
-
-  state.cards.unshift(newCard);
+  });
   state.metrics.queued += 1;
   document.getElementById('new-card-form').reset();
   render();
@@ -190,57 +149,37 @@ function processCard(card) {
 }
 
 function openRateModal() {
-  if (state.role !== 'admin') {
-    showToast('Only admins can adjust the live rate');
-    return;
-  }
+  if (state.role !== 'admin') { showToast('Only admins can adjust the live rate'); return; }
   document.getElementById('new-rate').value = state.exchangeRate;
   elements.rateModal.classList.remove('hidden');
 }
 
-function closeRateModal() {
-  elements.rateModal.classList.add('hidden');
-}
+function closeRateModal() { elements.rateModal.classList.add('hidden'); }
 
 function saveRate() {
   const value = Number(document.getElementById('new-rate').value);
-  if (!value) {
-    showToast('Please enter a valid rate');
-    return;
-  }
-
+  if (!value) { showToast('Please enter a valid rate'); return; }
   state.exchangeRate = value;
-  state.cards.forEach((card) => {
-    card.exchangeValue = card.amount * state.exchangeRate;
-  });
-  state.timeline.unshift({ text: `Rate updated to ${value} by ${state.userName}`, time: 'Just now' });
+  state.cards.forEach((card) => { card.exchangeValue = card.amount * state.exchangeRate; });
+  state.timeline.unshift({ text: `Rate updated to ${value} by ${state.role}`, time: 'Just now' });
   render();
   closeRateModal();
   showToast('Rate saved');
 }
 
 function openLimitsModal() {
-  if (state.role !== 'admin') {
-    showToast('Only admins can edit limits');
-    return;
-  }
+  if (state.role !== 'admin') { showToast('Only admins can edit limits'); return; }
   document.getElementById('max-txn').value = state.limits.maxPerTxn;
   document.getElementById('max-day').value = state.limits.maxPerDay;
   elements.limitsModal.classList.remove('hidden');
 }
 
-function closeLimitsModal() {
-  elements.limitsModal.classList.add('hidden');
-}
+function closeLimitsModal() { elements.limitsModal.classList.add('hidden'); }
 
 function saveLimits() {
   const maxTxn = Number(document.getElementById('max-txn').value);
   const maxDay = Number(document.getElementById('max-day').value);
-  if (!maxTxn || !maxDay) {
-    showToast('Please enter valid limits');
-    return;
-  }
-
+  if (!maxTxn || !maxDay) { showToast('Please enter valid limits'); return; }
   state.limits.maxPerTxn = maxTxn;
   state.limits.maxPerDay = maxDay;
   render();
@@ -253,15 +192,12 @@ function render() {
     elements.loginOverlay.classList.remove('hidden');
     return;
   }
-
   elements.loginOverlay.classList.add('hidden');
   elements.headerRate.textContent = state.exchangeRate.toFixed(3);
   elements.sidebarRate.textContent = `1 USD = ${state.exchangeRate.toFixed(3)} SLSH`;
   elements.roleBadge.textContent = state.role === 'admin' ? 'Admin' : 'Agent';
-
   elements.metricQueue.textContent = state.metrics.queued;
   elements.metricCompleted.textContent = state.metrics.completed;
-
   renderStats();
   renderBoard();
   renderTimeline();
@@ -294,58 +230,38 @@ function renderBoard() {
     { id: 'doing', title: 'In progress' },
     { id: 'done', title: 'Completed' }
   ];
-
-  elements.board.innerHTML = columns
-    .map((column) => {
-      const cards = state.cards.filter((card) => card.status === column.id);
-      return `
-        <div class="column" data-column="${column.id}">
-          <h4>${column.title}</h4>
-          ${cards
-            .map(
-              (card) => `
-                <article class="card" draggable="true" data-card-id="${card.id}">
-                  <div class="card-header">
-                    <strong>${card.customerNumber}</strong>
-                    <span class="badge ${getBadgeClass(card.apiStatus)}">${getBadgeLabel(card.apiStatus)}</span>
-                  </div>
-                  <p>${card.amount.toFixed(2)} ${card.currency} → ${card.exchangeValue.toFixed(2)} ${card.target}</p>
-                  <p>Target: ${card.target}</p>
-                  ${card.error ? `<p style="color:#8a1f1f;">${card.error}</p>` : ''}
-                </article>
-              `
-            )
-            .join('')}
-        </div>
-      `;
-    })
-    .join('');
+  elements.board.innerHTML = columns.map((column) => {
+    const cards = state.cards.filter((card) => card.status === column.id);
+    return `
+      <div class="column" data-column="${column.id}">
+        <h4>${column.title}</h4>
+        ${cards.map((card) => `
+          <article class="card" draggable="true" data-card-id="${card.id}">
+            <div class="card-header">
+              <strong>${card.customerNumber}</strong>
+              <span class="badge ${getBadgeClass(card.apiStatus)}">${getBadgeLabel(card.apiStatus)}</span>
+            </div>
+            <p>${card.amount.toFixed(2)} ${card.currency} → ${card.exchangeValue.toFixed(2)} ${card.target}</p>
+            <p>Target: ${card.target}</p>
+            ${card.error ? `<p style="color:#8a1f1f;">${card.error}</p>` : ''}
+          </article>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
 }
 
 function renderTimeline() {
-  elements.timeline.innerHTML = state.timeline
-    .map(
-      (item) => `
-        <div class="timeline-item">
-          <strong>${item.text}</strong>
-          <p class="label">${item.time}</p>
-        </div>
-      `
-    )
-    .join('');
+  elements.timeline.innerHTML = state.timeline.map((item) => `
+    <div class="timeline-item">
+      <strong>${item.text}</strong>
+      <p class="label">${item.time}</p>
+    </div>
+  `).join('');
 }
 
-function getBadgeClass(apiStatus) {
-  if (apiStatus === 'success') return 'success';
-  if (apiStatus === 'failed') return 'failed';
-  return 'pending';
-}
-
-function getBadgeLabel(apiStatus) {
-  if (apiStatus === 'success') return 'Success';
-  if (apiStatus === 'failed') return 'Failed';
-  return 'Pending';
-}
+function getBadgeClass(apiStatus) { if (apiStatus === 'success') return 'success'; if (apiStatus === 'failed') return 'failed'; return 'pending'; }
+function getBadgeLabel(apiStatus) { if (apiStatus === 'success') return 'Success'; if (apiStatus === 'failed') return 'Failed'; return 'Pending'; }
 
 function showToast(message) {
   elements.toast.textContent = message;
